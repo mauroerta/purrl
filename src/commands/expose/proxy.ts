@@ -8,29 +8,41 @@ export async function startProxy(
   origin: string,
   destination: string
 ) {
-  const [host = "localhost", port = "80"] = origin.split(":");
+  const [host = "127.0.0.1", port = "80"] = origin.split(":");
+  const realHost = host === "localhost" ? "127.0.0.1" : host;
 
-  await storage.append(host, destination);
+  await storage.append(realHost, destination);
 
   const proxy = httpProxy.createProxyServer({
     target: {
-      host,
+      host: realHost,
       port,
       protocol: flags.ssl ? "https" : "http",
     },
     changeOrigin: origin !== destination,
   });
 
-  process.on("exit", storage.restore);
+  console.log("Listening on", destination);
+  console.log("Target", {
+    host,
+    port,
+  });
+  console.log("Press Ctrl+C to stop");
 
   proxy.listen(80, destination);
 
   return new Promise<void>((resolve) => {
-    function closeAndRestore() {
-      storage.restore();
+    async function closeAndRestore() {
+      console.log("Restoring hosts file");
+
+      await storage.restore();
+
       resolve();
     }
 
     proxy.on("close", closeAndRestore);
+    proxy.on("end", closeAndRestore);
+    proxy.on("error", closeAndRestore);
+    process.on("exit", closeAndRestore);
   });
 }

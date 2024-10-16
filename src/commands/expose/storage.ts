@@ -1,29 +1,19 @@
 import fs from "node:fs/promises";
-import { name } from "../../../package.json";
 
 function createHostsStore() {
-  let backup: string | undefined;
-
   async function load() {
     const hostsFile = await fs.readFile("/etc/hosts", "utf8");
 
-    backup = hostsFile;
-
     await fs.writeFile("./backups/hosts", hostsFile);
 
-    return backup;
+    return hostsFile;
   }
 
   async function append(origin: string, destination: string) {
-    await load();
+    const current = await load();
 
-    if (!backup) {
-      backup = "";
-    }
-
-    const commentLine = `# DO NOT TOUCH - AUTOMATICALLY ADDED BY ${name} COMMAND`;
     const hostLine = `${origin} ${destination}`;
-    const isAlreadyAdded = backup.includes(`${origin} ${destination}`);
+    const isAlreadyAdded = current.includes(`${origin} ${destination}`);
 
     if (isAlreadyAdded) {
       console.log(
@@ -32,21 +22,15 @@ function createHostsStore() {
       return;
     }
 
-    const hosts = [
-      backup,
-      backup.includes(commentLine) ? "" : commentLine,
-      hostLine,
-    ]
-      .filter(Boolean)
-      .join("\n");
+    const hosts = `${current}\n${hostLine}`;
 
     await fs.writeFile("/etc/hosts", hosts);
   }
 
-  function restore() {
-    if (!backup) {
-      return;
-    }
+  async function restore() {
+    const backup = await fs.readFile("./backups/hosts", "utf8");
+
+    console.log("Restoring /etc/hosts with", backup);
 
     return fs.writeFile("/etc/hosts", backup);
   }
