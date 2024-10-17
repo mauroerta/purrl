@@ -2,6 +2,9 @@ import httpProxy from "http-proxy";
 import process from "node:process";
 import type { ExposeCommandFlags } from "./types";
 import { storage } from "./storage";
+import { createSSLOptions } from "./ssl";
+import { logger } from "../../logger";
+import chalk from "chalk";
 
 export async function startProxy(
   flags: ExposeCommandFlags,
@@ -9,40 +12,49 @@ export async function startProxy(
   destination: string
 ) {
   const [host = "127.0.0.1", port = "80"] = origin.split(":");
-  const realHost = host === "localhost" ? "127.0.0.1" : host;
+  const normalizedHost = host === "localhost" ? "127.0.0.1" : host;
+  const destinationPort = flags.ssl ? 443 : 80;
 
-  await storage.append(realHost, destination);
+  await storage.append(normalizedHost, destination);
+
+  const sslOptions = flags.ssl
+    ? await createSSLOptions([host, normalizedHost, destination])
+    : undefined;
 
   const proxy = httpProxy.createProxyServer({
     target: {
-      host: realHost,
+      host: normalizedHost,
       port,
-      protocol: flags.ssl ? "https" : "http",
+      protocol: "http",
     },
-    changeOrigin: origin !== destination,
+    ssl: sslOptions,
+    changeOrigin: normalizedHost !== destination,
   });
 
-  console.log("Listening on", destination);
-  console.log("Target", {
-    host,
-    port,
-  });
-  console.log("Press Ctrl+C to stop");
+  proxy.listen(destinationPort, destination);
 
-  proxy.listen(80, destination);
+  logger.success(
+    "Listening on",
+    `${flags.ssl ? "https" : "http"}://${destination}`,
+    "on port",
+    destinationPort
+  );
+
+  logger.info("└──", chalk.italic("Target", `http://${host}:${port}`));
+
+  logger.info("Press Ctrl+C to stop");
 
   return new Promise<void>((resolve) => {
-    async function closeAndRestore() {
-      console.log("Restoring hosts file");
+    async function closeAndRestore(error: unknown) {
+      if (error) {
+        logger.error(error);
+      }
 
       await storage.restore();
 
       resolve();
     }
 
-    proxy.on("close", closeAndRestore);
-    proxy.on("end", closeAndRestore);
-    proxy.on("error", closeAndRestore);
     process.on("exit", closeAndRestore);
   });
 }
