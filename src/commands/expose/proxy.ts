@@ -33,13 +33,9 @@ export async function startProxy(
 
   proxy.listen(destinationPort, destination);
 
-  logger.success(
-    "Listening on",
-    `${flags.ssl ? "https" : "http"}://${destination}`,
-    "on port",
-    destinationPort
-  );
+  const exposedUrl = `${flags.ssl ? "https" : "http"}://${destination}`;
 
+  logger.success("Listening on", exposedUrl, "on port", destinationPort);
   logger.info("└──", chalk.italic("Target", `http://${host}:${port}`));
 
   logger.info("Press Ctrl+C to stop");

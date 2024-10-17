@@ -1,4 +1,5 @@
 import { buildCommand } from "@stricli/core";
+import chalk from "chalk";
 
 export const exposeCommand = buildCommand({
   loader: () => import("./proxy").then((module) => module.startProxy),
@@ -27,8 +28,14 @@ export const exposeCommand = buildCommand({
   docs: {
     brief: "Expose your localhost to a custom local domain",
     customUsage: [
-      "localhost:3000 example.local",
-      "localhost:3000 example.local --ssl",
+      chalk.italic(chalk.cyan("localhost:3000 example.local")),
+      chalk.italic(
+        chalk.cyan(
+          "localhost:3000 example.local",
+          chalk.bold("--ssl"),
+          chalk.grey("# expose with https")
+        )
+      ),
     ],
   },
 });
