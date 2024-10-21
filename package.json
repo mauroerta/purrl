@@ -1,10 +1,10 @@
 {
   "name": "purrl",
-  "author": "",
-  "description": "Stricli command line application",
+  "author": "Mauro Erta <mauro@vlkstudio.com>",
+  "description": "Expose your localhost to a custom local domain",
   "license": "MIT",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "files": [
     "dist"
   ],
