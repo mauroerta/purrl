@@ -1,13 +1,17 @@
-import fs from "node:fs/promises";
+import fs from "node:fs";
 import { logger } from "../../logger";
 
 function createHostsStore() {
   async function load() {
-    const hostsFile = await fs.readFile("/etc/hosts", {
+    const hostsFile = await fs.promises.readFile("/etc/hosts", {
       encoding: "utf8",
     });
 
-    await fs.writeFile("./backups/hosts", hostsFile);
+    await fs.promises.mkdir(`${process.cwd()}/backups`, {
+      recursive: true,
+    });
+
+    await fs.promises.writeFile("./backups/hosts", hostsFile);
 
     return hostsFile;
   }
@@ -24,23 +28,21 @@ function createHostsStore() {
 
     const hosts = `${current}\n${hostLine}`;
 
-    await fs.writeFile("/etc/hosts", hosts, {
+    await fs.promises.writeFile("/etc/hosts", hosts, {
       encoding: "utf8",
       mode: "0o755",
     });
   }
 
   async function restore() {
-    const backup = await fs.readFile("./backups/hosts", "utf8");
+    const backup = await fs.promises.readFile("./backups/hosts", "utf8");
 
     logger.log("Restoring /etc/hosts with", backup);
 
-    await fs.chmod("/etc/hosts", 0o755);
-
-    return fs.writeFile("/etc/hosts", backup);
+    return fs.promises.writeFile("/etc/hosts", backup);
   }
 
   return { load, append, restore };
 }
 
-export const storage = createHostsStore();
+export const hostsStore = createHostsStore();

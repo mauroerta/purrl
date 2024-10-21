@@ -29,3 +29,4 @@ jspm_packages/
 
 *.tsbuildinfo
 dist
+.DS_Store

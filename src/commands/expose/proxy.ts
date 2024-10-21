@@ -1,7 +1,7 @@
 import httpProxy from "http-proxy";
 import process from "node:process";
 import type { ExposeCommandFlags } from "./types";
-import { storage } from "./storage";
+import { hostsStore } from "./storage";
 import { createSSLOptions } from "./ssl";
 import { logger } from "../../logger";
 import chalk from "chalk";
@@ -15,7 +15,7 @@ export async function startProxy(
   const normalizedHost = host === "localhost" ? "127.0.0.1" : host;
   const destinationPort = flags.ssl ? 443 : 80;
 
-  await storage.append(normalizedHost, destination);
+  await hostsStore.append(normalizedHost, destination);
 
   const sslOptions = flags.ssl
     ? await createSSLOptions([host, normalizedHost, destination])
@@ -46,7 +46,7 @@ export async function startProxy(
         logger.error(error);
       }
 
-      await storage.restore();
+      await hostsStore.restore();
 
       resolve();
     }
