@@ -4,13 +4,14 @@
   "description": "Expose your localhost to a custom local domain",
   "license": "MIT",
   "type": "module",
+  "private": false,
   "version": "0.0.1",
   "files": [
     "dist"
   ],
   "bin": {
-    "https": "dist/cli.js",
-    "__https_bash_complete": "dist/bash-complete.js"
+    "purrl": "dist/cli.js",
+    "__purrl_bash_complete": "dist/bash-complete.js"
   },
   "engines": {
     "node": ">=20"
@@ -18,8 +19,8 @@
   "scripts": {
     "prebuild": "tsc -p src/tsconfig.json",
     "build": "tsup",
-    "prepublishOnly": "npm run build",
-    "postinstall": "https install"
+    "prepublishOnly": "pnpm run build",
+    "postinstall": "purrl install"
   },
   "tsup": {
     "entry": [
@@ -47,5 +48,22 @@
     "tsup": "^6.7.0",
     "tsx": "^4.19.1",
     "typescript": "5.6.x"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mauroerta/purrl"
+  },
+  "bugs": {
+    "url": "https://github.com/mauroerta/purrl/issues"
+  },
+  "keywords": [
+    "proxy",
+    "https",
+    "local",
+    "reverse-proxy",
+    "tunnel",
+    "expose",
+    "local-ssl",
+    "local-https"
+  ]
 }
