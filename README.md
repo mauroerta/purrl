@@ -13,7 +13,7 @@ pnpm add -D purrl
 Run `purrl` in your terminal or add it into your `package.json` scripts.
 
 > [!NOTE]
-> You need to run `purrl` with `sudo` in order since it needs to modify the `/etc/hosts` and listen to ports 80 and 443 (in case of https).
+> You need to run `purrl` with `sudo` since it needs to modify the `/etc/hosts` file and listen to ports `80` and `443` (in case of https).
 
 ### From terminal
 
