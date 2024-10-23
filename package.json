@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "private": false,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "files": [
     "dist"
   ],
@@ -20,7 +20,7 @@
     "prebuild": "tsc -p src/tsconfig.json",
     "build": "tsup",
     "prepublishOnly": "pnpm run build",
-    "postinstall": "purrl install"
+    "postinstall": "npx @stricli/auto-complete@latest install __purrl_bash_complete"
   },
   "tsup": {
     "entry": [
