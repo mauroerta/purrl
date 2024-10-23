@@ -30,7 +30,7 @@ function createHostsStore() {
 
     await fs.promises.writeFile("/etc/hosts", hosts, {
       encoding: "utf8",
-      mode: "0o755",
+      mode: Number.parseInt("755", 8),
     });
   }
 

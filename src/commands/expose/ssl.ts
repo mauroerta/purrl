@@ -175,7 +175,7 @@ async function downloadBinary() {
       })
     );
 
-    await fs.promises.chmod(binaryPath, 0o755);
+    await fs.promises.chmod(binaryPath, Number.parseInt("755", 8));
 
     return binaryPath;
   } catch (err) {
